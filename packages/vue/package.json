@@ -1,0 +1,24 @@
+{
+  "name": "@lymp/vue",
+  "version": "0.0.1-alpha.8",
+  "module": "dist/vue.esm-bundler.js",
+  "types": "dist/vue.d.ts",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "buildOptions": {
+    "formats": [
+      "esm-bundler"
+    ]
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0"
+  },
+  "dependencies": {
+    "@lymp/core": "0.0.1-alpha.8",
+    "@css-render/plugin-bem": "^0.15.12",
+    "css-render": "^0.15.12",
+    "vue": "^3.3.4"
+  }
+}
