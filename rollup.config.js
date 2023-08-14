@@ -60,7 +60,7 @@ function createConfig(format, output, plugins = []) {
 
   function resolveDefine() {
     const replacements = {
-      // __COMMIT__: `"${process.env.COMMIT}"`,
+      __COMMIT__: `"${process.env.COMMIT}"`,
       __VERSION__: `"${masterVersion}"`,
       __ESM_BUNDLER__: String(isBundlerESMBuild)
     }

@@ -15,7 +15,7 @@ const formats = args.formats || args.f
 const sourceMap = args.sourcemap || args.s
 const isRelease = args.release
 const buildAllMatching = args.all || args.a
-// const commit = execa.sync('git', ['rev-parse', 'HEAD']).stdout.slice(0, 7)
+const commit = execa.sync('git', ['rev-parse', 'HEAD']).stdout.slice(0, 7)
 
 run()
 
@@ -70,7 +70,7 @@ async function build(target) {
       '-c',
       '--environment',
       [
-        // `COMMIT:${commit}`,
+        `COMMIT:${commit}`,
         `NODE_ENV:${env}`,
         `TARGET:${target}`,
         formats ? `FORMATS:${formats}` : ``,

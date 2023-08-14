@@ -10,11 +10,13 @@ import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 
 const { prompt } = enquirer
-// const currentVersion = createRequire(import.meta.url)('../package.json').version
+const run = (bin, args, opts = {}) =>
+  execa(bin, args, { stdio: 'inherit', ...opts })
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const currentVersion = createRequire(import.meta.url)('../package.json').version
 const args = minimist(process.argv.slice(2))
 const skipBuild = args.skipBuild
+const skipGit = args.skipGit
 const preId = args.preid || semver.prerelease(currentVersion)?.[0]
 
 const packages = fs
@@ -22,8 +24,6 @@ const packages = fs
   .filter(p => !p.endsWith('.ts') && !p.startsWith('.'))
 
 const inc = i => semver.inc(currentVersion, i, preId)
-const run = (bin, args, opts = {}) =>
-  execa(bin, args, { stdio: 'inherit', ...opts })
 const getPkgRoot = pkg => path.resolve(__dirname, '../packages/' + pkg)
 const step = msg => console.log(chalk.cyan(msg))
 
@@ -92,10 +92,29 @@ async function main() {
     console.log(`(skipped)`)
   }
 
+  if (!skipGit) {
+    const { stdout } = await run('git', ['diff'], { stdio: 'pipe' })
+    if (stdout) {
+      step('\nCommitting changes...')
+      await run('git', ['add', '-A'])
+      await run('git', ['commit', '-m', `release: v${targetVersion}`])
+    } else {
+      console.log('No changes to commit.')
+    }
+  }
+
   // publish packages
   step('\nPublishing packages...')
   for (const pkg of packages) {
     await publishPackage(pkg, targetVersion)
+  }
+
+  // push to GitHub
+  if (!skipGit) {
+    step('\nPushing to GitHub...')
+    await run('git', ['tag', `v${targetVersion}`])
+    await run('git', ['push', 'origin', `refs/tags/v${targetVersion}`])
+    await run('git', ['push'])
   }
 }
 
