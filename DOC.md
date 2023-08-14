@@ -50,7 +50,7 @@ off(type: AMapEventType, viewer: Viewer, callback: PulseLineLayerListener):void
 
 # @lymp/vue
 
-## Tips
+## Warn
 > `v-show/if`控制显示隐藏的功能在后续版本中考虑废弃!!!
 
 ## Props
