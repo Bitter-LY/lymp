@@ -12,6 +12,7 @@
       "esm-bundler"
     ]
   },
+  "license": "MIT",
   "peerDependencies": {
     "vue": "^3.3.0"
   },

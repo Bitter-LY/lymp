@@ -27,6 +27,7 @@
       "prettier --parser=typescript --write"
     ]
   },
+  "license": "MIT",
   "engines": {
     "node": ">=16.20.1"
   },

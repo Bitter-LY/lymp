@@ -12,6 +12,7 @@
       "esm-bundler"
     ]
   },
+  "license": "MIT",
   "dependencies": {
     "@amap/amap-jsapi-types": "^0.0.13"
   }
