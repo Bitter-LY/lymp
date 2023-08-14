@@ -1,5 +1,5 @@
 /// <reference types="@amap/amap-jsapi-types" />
-/// <reference path="../loca.d.ts" />
+export type * from '../loca'
 
 export { default as Content } from './modules/Content'
 export { default as LabelMarker } from './modules/LabelMarker'
