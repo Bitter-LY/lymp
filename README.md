@@ -1,1 +1,1 @@
-### AMap
+# [Doc](./DOC.md)
