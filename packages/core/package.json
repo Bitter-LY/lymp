@@ -1,6 +1,6 @@
 {
   "name": "@lymp/core",
-  "version": "0.0.1-alpha.12",
+  "version": "0.0.1-alpha.13",
   "module": "dist/core.esm-bundler.js",
   "types": "dist/core.d.ts",
   "files": [
