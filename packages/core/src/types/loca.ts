@@ -1,7 +1,9 @@
-export {}
-
 declare global {
-  type AMapEventType =
+  interface Window {
+    Loca: typeof Loca
+  }
+
+  export type AMapEventType =
     | 'resize'
     | 'complete'
     | 'click'
@@ -32,7 +34,7 @@ declare global {
     | 'touchmove'
     | 'touchend'
 
-  type AMapEvent<T = any> = {
+  export type AMapEvent<T = any> = {
     lnglat: AMap.LngLat
     pixel: AMap.Pixel
     type: AMapEventType
@@ -129,3 +131,5 @@ declare global {
     }
   }
 }
+
+export {}
