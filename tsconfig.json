@@ -27,5 +27,9 @@
       "lymp": ["packages/lymp/src"]
     }
   },
-  "include": ["packages/global.d.ts", "packages/*/src"]
+  "include": [
+    "packages/global.d.ts",
+    "packages/*/src",
+    "packages/demo/env.d.ts"
+  ]
 }
