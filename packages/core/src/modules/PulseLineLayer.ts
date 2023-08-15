@@ -7,8 +7,14 @@ export type PulseLineLayerListener = (
 const eventsMap = new Map<PulseLineLayerListener, (e: AMapEvent) => void>()
 
 export default class PulseLineLayer extends Loca.PulseLineLayer {
+  static _UID: number = 0
+
+  _uid: number
+  _type: string = 'PulseLineLayer'
+
   constructor(options: Loca.PulseLineLayerOptions) {
     super(options)
+    this._uid = ++PulseLineLayer._UID
   }
 
   on(type: AMapEventType, viewer: Viewer, callback: PulseLineLayerListener) {

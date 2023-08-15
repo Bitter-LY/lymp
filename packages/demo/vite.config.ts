@@ -10,8 +10,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@lymp/*': '../../packages/*/src',
-      lymp: fileURLToPath(new URL('../lymp/src', import.meta.url))
+      lymp: fileURLToPath(new URL('../lymp', import.meta.url))
     }
   }
 })
