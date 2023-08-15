@@ -3,7 +3,7 @@ import {
   inject,
   type PropType,
   watchEffect,
-  ref,
+  shallowRef,
   onUpdated
 } from 'vue'
 import { Marker } from '@lymp/core'
@@ -34,7 +34,7 @@ export default defineComponent({
       call(props.onDestroyed, marker)
     }
 
-    const self = ref<HTMLDivElement | null>(null)
+    const self = shallowRef<HTMLDivElement | null>(null)
     const marker = new Marker(props.options)
     handleOnCreated()
 

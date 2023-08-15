@@ -4,7 +4,7 @@ import {
   inject,
   type PropType,
   watchEffect,
-  ref,
+  shallowRef,
   onUpdated,
   nextTick
 } from 'vue'
@@ -35,7 +35,7 @@ export default defineComponent({
       call(props.onDestroyed, content)
     }
 
-    const self = ref<HTMLDivElement | null>(null)
+    const self = shallowRef<HTMLDivElement | null>(null)
     const content = new Content(props.options)
     handleOnCreated()
 

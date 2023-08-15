@@ -4,10 +4,9 @@ import {
   inject,
   type PropType,
   watchEffect,
-  ref,
+  shallowRef,
   onUpdated,
-  provide,
-  shallowRef
+  provide
 } from 'vue'
 import { LabelMarker, type Content } from '@lymp/core'
 import { call, type MaybeArray } from '../_utils/vue/call'
@@ -47,7 +46,7 @@ export default defineComponent({
       call(props.onDestroyed, labelMarker)
     }
 
-    const self = ref<HTMLDivElement | null>(null)
+    const self = shallowRef<HTMLDivElement | null>(null)
     const labelMarker = new LabelMarker(props.options)
     handleOnCreated()
 
