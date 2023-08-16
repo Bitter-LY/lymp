@@ -1,4 +1,4 @@
-import { cB } from '../_utils/cssr'
+import { cB } from '../utils/cssr'
 
 export default cB(
   'viewer',

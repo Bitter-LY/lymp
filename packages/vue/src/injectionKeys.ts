@@ -1,16 +1,10 @@
-import type { ShallowRef, Ref } from 'vue'
-import type { Content, Viewer, OverlayGroupItem } from '@lymp/core'
-import { createInjectionKey } from './_utils/vue/create-injection-key'
-
-type OverlayGroupHandler = {
-  add(item: OverlayGroupItem): void
-  remove(item: OverlayGroupItem): void
-  hasViewer: Ref<boolean>
-}
+import type { ShallowRef } from 'vue'
+import type { Viewer, OverlayGroup, Content } from '@lymp/core'
+import { createInjectionKey } from './utils/vue/create-injection-key'
 
 export const viewerInjectionKey =
   createInjectionKey<ShallowRef<Viewer | null>>('viewer')
-export const contentInjectionKey =
-  createInjectionKey<ShallowRef<Content | null>>('content')
-export const overlayGroupHandlerInjectionKey =
-  createInjectionKey<OverlayGroupHandler>('addOverlayGroupItem')
+export const overlayGroupInjectionKey =
+  createInjectionKey<OverlayGroup>('overlayGroup')
+export const setContentInjectionKey =
+  createInjectionKey<(content: Content) => void>('setContent')

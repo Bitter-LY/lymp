@@ -1,42 +1,42 @@
 import { defineComponent, inject, type PropType, watchPostEffect } from 'vue'
-import { Marker } from '@lymp/core'
+import { Polygon } from '@lymp/core'
 import { overlayGroupInjectionKey, viewerInjectionKey } from '../injectionKeys'
 import { call } from '../utils/vue/call'
 import createLifeCycleProps from '../props/createLifeCycleProps'
 
 const props = {
-  options: [Object, undefined] as PropType<AMap.MarkerOptions | undefined>,
-  ...createLifeCycleProps<Marker>()
+  options: [Object, undefined] as PropType<AMap.PolygonOptions | undefined>,
+  ...createLifeCycleProps<Polygon>()
 }
 
 export default defineComponent({
-  name: 'Marker',
+  name: 'Polygon',
   props,
   setup(props) {
-    const marker = new Marker(props.options)
+    const polygon = new Polygon(props.options)
     const viewer = inject(viewerInjectionKey, null)
 
     const overlayGroup = inject(overlayGroupInjectionKey, null)
-    if (overlayGroup) return overlayGroup.addOverlay(marker)
+    if (overlayGroup) return overlayGroup.addOverlay(polygon)
 
     watchPostEffect(onClean => {
       if (!viewer?.value) return
       onClean(() => {
-        viewer?.value?.remove(marker)
+        viewer?.value?.remove(polygon)
         handleDestroyed()
       })
 
-      viewer.value.add(marker)
+      viewer.value.add(polygon)
       handleMounted()
     })
 
     const handleMounted = () => {
       if (!props.onMounted) return
-      call(props.onMounted, marker)
+      call(props.onMounted, polygon)
     }
     const handleDestroyed = () => {
       if (!props.onDestroyed) return
-      call(props.onDestroyed, marker)
+      call(props.onDestroyed, polygon)
     }
   },
   render() {

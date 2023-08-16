@@ -2,82 +2,56 @@ import {
   defineComponent,
   inject,
   type PropType,
-  watchEffect,
-  toRefs,
-  provide,
-  ref
+  watchPostEffect,
+  provide
 } from 'vue'
 import { OverlayGroup } from '@lymp/core'
-import {
-  viewerInjectionKey,
-  overlayGroupHandlerInjectionKey
-} from '../injectionKeys'
-import { call, type MaybeArray } from '../_utils/vue/call'
+import { viewerInjectionKey, overlayGroupInjectionKey } from '../injectionKeys'
+import { call } from '../utils/vue/call'
+import createLifeCycleProps from '../props/createLifeCycleProps'
 
 const props = {
+  options: [Object, undefined] as PropType<AMap.MarkerOptions | undefined>,
   visible: {
-    type: Boolean as PropType<boolean>,
+    type: Boolean,
     default: true
   },
-  onCreated: [Function, Array] as PropType<MaybeArray<() => void>>,
-  onMounted: [Function, Array] as PropType<MaybeArray<() => void>>,
-  onDestroyed: [Function, Array] as PropType<MaybeArray<() => void>>
+  ...createLifeCycleProps<OverlayGroup>()
 }
 
 export default defineComponent({
   name: 'OverlayGroup',
   props,
   setup(props) {
-    const handleOnCreated = () => {
-      if (!props.onCreated) return
-      call(props.onCreated)
-    }
-    const handleMounted = () => {
-      if (!props.onMounted) return
-      call(props.onMounted)
-    }
-    const handleDestroyed = () => {
-      if (!props.onDestroyed) return
-      call(props.onDestroyed)
-    }
-
     const overlayGroup = new OverlayGroup()
-    const overlayGroupHasViewer = ref(false)
-    provide(overlayGroupHandlerInjectionKey, {
-      add(item) {
-        overlayGroup.addOverlay(item)
-      },
-      remove(item) {
-        overlayGroup.removeOverlay(item)
-      },
-      hasViewer: overlayGroupHasViewer
-    })
-    handleOnCreated()
-
-    const propsRefs = toRefs(props)
-    watchEffect(() => {
-      if (!propsRefs.visible.value) {
-        overlayGroup.hide()
-      } else {
-        overlayGroup.show()
-      }
-    })
-
     const viewer = inject(viewerInjectionKey, null)
-    watchEffect(onClean => {
-      if (viewer?.value) {
-        overlayGroup.setViewer(viewer.value)
-        overlayGroupHasViewer.value = true
-        handleMounted()
-      }
+    provide(overlayGroupInjectionKey, overlayGroup)
 
+    watchPostEffect(onClean => {
+      if (!viewer?.value) return
       onClean(() => {
         overlayGroup.clearOverlays()
         handleDestroyed()
       })
+
+      overlayGroup.setViewer(viewer.value)
+      handleMounted()
     })
+
+    watchPostEffect(() => {
+      overlayGroup[props.visible ? 'show' : 'hide']()
+    })
+
+    const handleMounted = () => {
+      if (!props.onMounted) return
+      call(props.onMounted, overlayGroup)
+    }
+    const handleDestroyed = () => {
+      if (!props.onDestroyed) return
+      call(props.onDestroyed, overlayGroup)
+    }
   },
   render() {
-    return <div>{this.$slots.default?.()}</div>
+    return <i>{this.$slots.default?.()}</i>
   }
 })

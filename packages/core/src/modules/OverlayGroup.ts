@@ -16,12 +16,15 @@ const equals = (a: OverlayGroupItem, b: OverlayGroupItem) => {
   return a._type === b._type && a._uid === b._uid
 }
 
-export default class OverlayGroup {
+type OverlayGroupEventType = 'show' | 'hide'
+
+export default class OverlayGroup extends AMap.Event<OverlayGroupEventType> {
   private _overlays: OverlayGroupItem[] = []
   private _viewer: Viewer | null = null
   private _visible: boolean = true
 
   constructor(overlays?: OverlayGroupItem[]) {
+    super()
     this._overlays = overlays || []
   }
 
@@ -80,6 +83,7 @@ export default class OverlayGroup {
     this._overlays.forEach(overlay => {
       overlay.show()
     })
+    this.emit('show')
   }
 
   hide() {
@@ -87,6 +91,7 @@ export default class OverlayGroup {
     this._overlays.forEach(overlay => {
       overlay.hide()
     })
+    this.emit('hide')
   }
 
   setViewer(viewer: Viewer) {

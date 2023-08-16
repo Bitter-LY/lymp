@@ -1,26 +1,22 @@
-import { viewerInjectionKey, contentInjectionKey } from '../injectionKeys'
 import {
   defineComponent,
   inject,
   type PropType,
-  watchEffect,
-  shallowRef,
-  onUpdated,
-  provide
+  watchPostEffect,
+  provide,
+  shallowRef
 } from 'vue'
-import { LabelMarker, type Content } from '@lymp/core'
-import { call, type MaybeArray } from '../_utils/vue/call'
+import { type Content, LabelMarker } from '@lymp/core'
+import {
+  overlayGroupInjectionKey,
+  setContentInjectionKey,
+  viewerInjectionKey
+} from '../injectionKeys'
+import { call } from '../utils/vue/call'
+import createLifeCycleProps from '../props/createLifeCycleProps'
 
 const props = {
-  onCreated: [Function, Array] as PropType<
-    MaybeArray<(e: LabelMarker) => void>
-  >,
-  onMounted: [Function, Array] as PropType<
-    MaybeArray<(e: LabelMarker) => void>
-  >,
-  onDestroyed: [Function, Array] as PropType<
-    MaybeArray<(e: LabelMarker) => void>
-  >
+  ...createLifeCycleProps<LabelMarker>()
 }
 
 export default defineComponent({
@@ -33,71 +29,59 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const handleOnCreated = () => {
-      if (!props.onCreated) return
-      call(props.onCreated, labelMarker)
-    }
+    const labelMaker = new LabelMarker(props.options)
+    const viewer = inject(viewerInjectionKey, null)
+
+    // #S slot: content
+    const content = shallowRef<Content | null>(null)
+    provide(setContentInjectionKey, c => {
+      content.value = c
+    })
+    watchPostEffect(onClean => {
+      if (!content.value) return
+      if (!content.value.getMap()) {
+        watchPostEffect(() => {
+          if (!viewer?.value || !content.value) return
+          content.value.setMap(viewer.value)
+        })
+      }
+      const handleToggle = () => {
+        if (!content.value) return
+        content.value[content.value.getVisible() ? 'hide' : 'show']()
+      }
+
+      onClean(() => labelMaker.off('click', handleToggle))
+      labelMaker.on('click', handleToggle)
+
+      if (!overlayGroup) return
+      overlayGroup.on('hide', () => content.value?.hide()) // TODO: content可能会从地图中删除！WARN
+    })
+    // #E slot: content
+
+    const overlayGroup = inject(overlayGroupInjectionKey, null)
+    if (overlayGroup) return overlayGroup.addOverlay(labelMaker)
+
+    watchPostEffect(onClean => {
+      onClean(() => {
+        viewer?.value?.remove(labelMaker)
+        handleDestroyed()
+      })
+
+      if (!viewer?.value) return
+      viewer.value.add(labelMaker)
+      handleMounted()
+    })
+
     const handleMounted = () => {
       if (!props.onMounted) return
-      call(props.onMounted, labelMarker)
+      call(props.onMounted, labelMaker)
     }
     const handleDestroyed = () => {
       if (!props.onDestroyed) return
-      call(props.onDestroyed, labelMarker)
-    }
-
-    const self = shallowRef<HTMLDivElement | null>(null)
-    const labelMarker = new LabelMarker(props.options)
-    handleOnCreated()
-
-    // 兼容`v-show`以及直接修改`style.display`属性
-    onUpdated(() => {
-      if (!self.value) return
-      const display = self.value.style.display
-      if (display === 'none') {
-        labelMarker.hide()
-      } else {
-        labelMarker.show()
-      }
-    })
-
-    const viewer = inject(viewerInjectionKey, null)
-    watchEffect(onClean => {
-      if (viewer?.value) {
-        viewer.value.add(labelMarker)
-        handleMounted()
-      }
-
-      onClean(() => {
-        if (viewer?.value) viewer.value.remove(labelMarker)
-        handleDestroyed()
-      })
-    })
-
-    // slot content
-    const contentIns = shallowRef<Content | null>(null)
-    provide(contentInjectionKey, contentIns)
-    const toggleContentVisible = () => {
-      if (!contentIns.value) return
-      const visible = contentIns.value.getVisible()
-      if (visible) return contentIns.value.hide()
-      contentIns.value.show()
-    }
-
-    return {
-      self,
-      labelMarker,
-      contentIns,
-      toggleContentVisible
+      call(props.onDestroyed, labelMaker)
     }
   },
   render() {
-    if (this.contentIns) {
-      this.labelMarker.on('click', this.toggleContentVisible)
-    } else {
-      this.labelMarker.off('click', this.toggleContentVisible)
-    }
-
-    return <div ref="self">{this.$slots.content?.()}</div>
+    return <i>{this.$slots.content?.()}</i>
   }
 })

@@ -1,31 +1,44 @@
-import { viewerInjectionKey, contentInjectionKey } from '../injectionKeys'
-import {
-  defineComponent,
-  inject,
-  type PropType,
-  watchEffect,
-  shallowRef,
-  onUpdated,
-  nextTick
-} from 'vue'
+import { defineComponent, inject, type PropType, watchPostEffect } from 'vue'
 import { Content } from '@lymp/core'
-import { call, type MaybeArray } from '../_utils/vue/call'
+import {
+  overlayGroupInjectionKey,
+  setContentInjectionKey,
+  viewerInjectionKey
+} from '../injectionKeys'
+import { call } from '../utils/vue/call'
+import createLifeCycleProps from '../props/createLifeCycleProps'
 
 const props = {
   options: [Object, undefined] as PropType<AMap.OverlayOptions | undefined>,
-  onCreated: [Function, Array] as PropType<MaybeArray<(e: Content) => void>>,
-  onMounted: [Function, Array] as PropType<MaybeArray<(e: Content) => void>>,
-  onDestroyed: [Function, Array] as PropType<MaybeArray<(e: Content) => void>>
+  ...createLifeCycleProps<Content>()
 }
 
 export default defineComponent({
   name: 'Content',
   props,
   setup(props) {
-    const handleOnCreated = () => {
-      if (!props.onCreated) return
-      call(props.onCreated, content)
-    }
+    const content = new Content(props.options)
+    const viewer = inject(viewerInjectionKey, null)
+
+    // #S with LabelMarker#slot: content
+    const setContent = inject(setContentInjectionKey, null)
+    if (setContent) return setContent(content)
+    // #E with LabelMarker#slot: content
+
+    const overlayGroup = inject(overlayGroupInjectionKey, null)
+    if (overlayGroup) return overlayGroup.addOverlay(content)
+
+    watchPostEffect(onClean => {
+      onClean(() => {
+        viewer?.value?.remove(content)
+        handleDestroyed()
+      })
+
+      if (!viewer?.value) return
+      viewer.value.add(content)
+      handleMounted()
+    })
+
     const handleMounted = () => {
       if (!props.onMounted) return
       call(props.onMounted, content)
@@ -34,55 +47,8 @@ export default defineComponent({
       if (!props.onDestroyed) return
       call(props.onDestroyed, content)
     }
-
-    const self = shallowRef<HTMLDivElement | null>(null)
-    const content = new Content(props.options)
-    handleOnCreated()
-
-    const contentIns = inject(contentInjectionKey, null)
-    if (contentIns) contentIns.value = content
-
-    if (!contentIns) {
-      // 兼容`v-show`以及直接修改`style.display`属性
-      onUpdated(() => {
-        if (!self.value) return
-        const display = self.value.style.display
-        if (display === 'none') {
-          content.hide()
-        } else {
-          content.show()
-        }
-      })
-    } else {
-      onUpdated(() => {
-        nextTick(() => {
-          if (!self.value) return
-          const display = self.value.parentElement?.style.display
-          if (display === 'none') return content.hide()
-          if (content.getVisible()) content.show()
-        })
-      })
-    }
-
-    const viewer = inject(viewerInjectionKey, null)
-    watchEffect(onClean => {
-      if (viewer?.value) {
-        viewer.value.add(content)
-        handleMounted()
-      }
-
-      onClean(() => {
-        if (viewer?.value) viewer.value.remove(content)
-        content.destroy()
-        handleDestroyed()
-      })
-    })
-
-    return {
-      self
-    }
   },
   render() {
-    return <div ref="self"></div>
+    return <i />
   }
 })
