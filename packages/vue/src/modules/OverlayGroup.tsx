@@ -56,9 +56,6 @@ export default defineComponent({
 
     const propsRefs = toRefs(props)
     watchEffect(() => {
-      console.log('visible', propsRefs.visible.value)
-      overlayGroup.getOverlays().forEach(e => console.log(e.getVisible()))
-
       if (!propsRefs.visible.value) {
         overlayGroup.hide()
       } else {

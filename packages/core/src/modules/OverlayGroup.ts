@@ -1,9 +1,16 @@
 import type Content from './Content'
 import type LabelMarker from './LabelMarker'
 import type Marker from './Marker'
+import type Polygon from './Polygon'
+import type Polyline from './Polyline'
 import type Viewer from './Viewer'
 
-export type OverlayGroupItem = Marker | LabelMarker | Content
+export type OverlayGroupItem =
+  | Marker
+  | LabelMarker
+  | Content
+  | Polyline
+  | Polygon
 
 const equals = (a: OverlayGroupItem, b: OverlayGroupItem) => {
   return a._type === b._type && a._uid === b._uid
@@ -18,7 +25,7 @@ export default class OverlayGroup {
     this._overlays = overlays || []
   }
 
-  addOverlay(overlay: Marker | LabelMarker | Content) {
+  addOverlay(overlay: OverlayGroupItem) {
     this._overlays.push(overlay)
     overlay[this._visible ? 'show' : 'hide']()
     if (!this._viewer) return
@@ -32,7 +39,7 @@ export default class OverlayGroup {
     this._overlays.forEach(overlay => this.addOverlay(overlay))
   }
 
-  hasOverlay(overlay: Marker | LabelMarker | Content) {
+  hasOverlay(overlay: OverlayGroupItem) {
     return this._overlays.some(item => equals(item, overlay))
   }
 
@@ -40,7 +47,7 @@ export default class OverlayGroup {
     return this._overlays
   }
 
-  removeOverlay(overlay: Marker | LabelMarker | Content) {
+  removeOverlay(overlay: OverlayGroupItem) {
     const index = this._overlays.findIndex(item => equals(item, overlay))
     if (index !== -1) {
       this._overlays.splice(index, 1)
