@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { VViewer, VLabelMarker, VLabelMarkerLayer, VContent } from 'lymp'
+import { VViewer, VLabelMarker, VLabelMarkerLayer } from 'lymp'
 import { ref } from 'vue'
 
 const visible = ref(true)
@@ -10,10 +10,8 @@ window.addEventListener('keydown', e => {
   }
 })
 
-const positions = [
-  [116.362209, 39.887487],
-  [116.422897, 39.878002]
-] as AMap.Vector2[]
+// @ts-ignore
+const positions = window.Positions.slice(0, 3000) as AMap.Vector2[]
 const createOptions = (position: AMap.Vector2): AMap.LabelMarkerOptions => {
   return {
     position,
@@ -22,14 +20,6 @@ const createOptions = (position: AMap.Vector2): AMap.LabelMarkerOptions => {
       image: '//a.amap.com/lbs-dev-yuntu/static/web/image/common/robotIcon.png',
       size: [40, 40]
     }
-  }
-}
-const createContentOptions = (position: AMap.Vector2): AMap.OverlayOptions => {
-  return {
-    position,
-    content: 'Content',
-    anchor: 'top-center',
-    offset: [0, -60]
   }
 }
 </script>
@@ -44,11 +34,7 @@ const createContentOptions = (position: AMap.Vector2): AMap.OverlayOptions => {
         v-for="(position, i) in positions"
         :key="i"
         :options="createOptions(position)"
-      >
-        <template #content>
-          <VContent :options="createContentOptions(position)" />
-        </template>
-      </VLabelMarker>
+      />
     </VLabelMarkerLayer>
   </VViewer>
 </template>

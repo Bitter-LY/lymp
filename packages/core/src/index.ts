@@ -4,6 +4,7 @@ export { default as Marker } from './modules/Marker'
 export { default as Viewer } from './modules/Viewer'
 export { default as Polyline } from './modules/Polyline'
 export { default as Polygon } from './modules/Polygon'
+export { default as LabelMarkerLayer } from './modules/LabelMarkerLayer'
 export {
   default as OverlayGroup,
   type OverlayGroupItem

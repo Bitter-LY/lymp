@@ -10,7 +10,8 @@ import { type Content, LabelMarker } from '@lymp/core'
 import {
   overlayGroupInjectionKey,
   setContentInjectionKey,
-  viewerInjectionKey
+  viewerInjectionKey,
+  labelMarkerLayerInjectionKey
 } from '../injectionKeys'
 import { call } from '../utils/vue/call'
 import createLifeCycleProps from '../props/createLifeCycleProps'
@@ -31,6 +32,8 @@ export default defineComponent({
   setup(props) {
     const labelMaker = new LabelMarker(props.options)
     const viewer = inject(viewerInjectionKey, null)
+    const overlayGroup = inject(overlayGroupInjectionKey, null)
+    const labelMarkerLayer = inject(labelMarkerLayerInjectionKey, null)
 
     // #S slot: content
     const content = shallowRef<Content | null>(null)
@@ -58,7 +61,13 @@ export default defineComponent({
     })
     // #E slot: content
 
-    const overlayGroup = inject(overlayGroupInjectionKey, null)
+    // #S slot: labelMarkerLayer
+    if (labelMarkerLayer) {
+      labelMarkerLayer.add(labelMaker)
+      return
+    }
+    // #E slot: labelMarkerLayer
+
     if (overlayGroup) return overlayGroup.addOverlay(labelMaker)
 
     watchPostEffect(onClean => {
@@ -80,8 +89,13 @@ export default defineComponent({
       if (!props.onDestroyed) return
       call(props.onDestroyed, labelMaker)
     }
+
+    return {
+      labelMarkerLayer
+    }
   },
   render() {
-    return <i>{this.$slots.content?.()}</i>
+    // 作为labelMarkerLayer子元素时不渲染content，不然会出现渲染大量dom元素时卡顿
+    return <i>{this.labelMarkerLayer ? null : this.$slots.content?.()}</i>
   }
 })
