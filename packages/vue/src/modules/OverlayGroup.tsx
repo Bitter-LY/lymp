@@ -1,17 +1,10 @@
-import {
-  defineComponent,
-  inject,
-  type PropType,
-  watchPostEffect,
-  provide
-} from 'vue'
+import { defineComponent, inject, watchPostEffect, provide } from 'vue'
 import { OverlayGroup } from '@lymp/core'
 import { viewerInjectionKey, overlayGroupInjectionKey } from '../injectionKeys'
 import { call } from '../utils/vue/call'
 import createLifeCycleProps from '../props/createLifeCycleProps'
 
 const props = {
-  options: [Object, undefined] as PropType<AMap.MarkerOptions | undefined>,
   visible: {
     type: Boolean,
     default: true
