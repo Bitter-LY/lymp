@@ -12,6 +12,7 @@ const equals = (a: OverlayGroupItem, b: OverlayGroupItem) => {
 export default class OverlayGroup {
   private _overlays: OverlayGroupItem[] = []
   private _viewer: Viewer | null = null
+  private _visible: boolean = true
 
   constructor(overlays?: OverlayGroupItem[]) {
     this._overlays = overlays || []
@@ -19,7 +20,7 @@ export default class OverlayGroup {
 
   addOverlay(overlay: Marker | LabelMarker | Content) {
     this._overlays.push(overlay)
-
+    overlay[this._visible ? 'show' : 'hide']()
     if (!this._viewer) return
     this._viewer.add(overlay)
   }
@@ -28,7 +29,7 @@ export default class OverlayGroup {
     this._overlays = this._overlays.concat(overlays)
 
     if (!this._viewer) return
-    this._viewer.add(overlays)
+    this._overlays.forEach(overlay => this.addOverlay(overlay))
   }
 
   hasOverlay(overlay: Marker | LabelMarker | Content) {
@@ -68,12 +69,14 @@ export default class OverlayGroup {
   }
 
   show() {
+    this._visible = true
     this._overlays.forEach(overlay => {
       overlay.show()
     })
   }
 
   hide() {
+    this._visible = false
     this._overlays.forEach(overlay => {
       overlay.hide()
     })

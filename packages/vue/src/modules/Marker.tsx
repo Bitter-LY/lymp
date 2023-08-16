@@ -7,7 +7,10 @@ import {
   onUpdated
 } from 'vue'
 import { Marker } from '@lymp/core'
-import { viewerInjectionKey } from '../injectionKeys'
+import {
+  overlayGroupHandlerInjectionKey,
+  viewerInjectionKey
+} from '../injectionKeys'
 import { call, type MaybeArray } from '../_utils/vue/call'
 
 const props = {
@@ -50,17 +53,27 @@ export default defineComponent({
     })
 
     const viewer = inject(viewerInjectionKey, null)
+    const overlayGroupHandler = inject(overlayGroupHandlerInjectionKey, null)
     watchEffect(onClean => {
+      onClean(() => {
+        if (overlayGroupHandler) overlayGroupHandler.remove(marker)
+        else if (viewer?.value) viewer.value.remove(marker)
+        marker.destroy()
+        handleDestroyed()
+      })
+
+      if (overlayGroupHandler) {
+        if (!overlayGroupHandler.hasViewer.value) return
+        overlayGroupHandler.add(marker)
+        return
+      }
+
+      console.log('pass')
+
       if (viewer?.value) {
         viewer.value.add(marker)
         handleMounted()
       }
-
-      onClean(() => {
-        if (viewer?.value) viewer.value.remove(marker)
-        marker.destroy()
-        handleDestroyed()
-      })
     })
 
     return {
