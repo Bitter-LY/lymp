@@ -6,3 +6,8 @@ export { default as VPolygon } from './modules/Polygon'
 export { default as VLabelMarker } from './modules/LabelMarker'
 export { default as VOverlayGroup } from './modules/OverlayGroup'
 export { default as VLabelMarkerLayer } from './modules/LabelMarkerLayer'
+export {
+  default as VMarkerCluster,
+  type MarkerClusterOptions,
+  type MarkerClusterClickEvent
+} from './modules/MarkerCluster'

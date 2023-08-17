@@ -18,6 +18,11 @@ const router = createRouter({
       path: '/per-marker',
       name: 'perMarker',
       component: () => import('../views/PerMarker.vue')
+    },
+    {
+      path: '/marker-cluster',
+      name: 'markerCluster',
+      component: () => import('../views/MarkerCluster.vue')
     }
   ]
 })
