@@ -64,11 +64,18 @@ export default defineComponent({
     // #S slot: labelMarkerLayer
     if (labelMarkerLayer) {
       labelMarkerLayer.add(labelMaker)
-      return
+      return {
+        labelMarkerLayer
+      }
     }
     // #E slot: labelMarkerLayer
 
-    if (overlayGroup) return overlayGroup.addOverlay(labelMaker)
+    if (overlayGroup) {
+      overlayGroup.addOverlay(labelMaker)
+      return {
+        labelMarkerLayer
+      }
+    }
 
     watchPostEffect(onClean => {
       onClean(() => {
