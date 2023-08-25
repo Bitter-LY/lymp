@@ -29,13 +29,6 @@ const renderClusterMarker: AMap.RenderClusterMarker = context => {
   const div = document.createElement('div')
   context.marker.setContent(div)
   context.marker.setAnchor('center')
-  context.marker.setIcon(
-    new Icon({
-      image:
-        'https://a.amap.com/jsapi_demos/static/demo-center/marker/express2.png',
-      size: [64, 30]
-    })
-  )
 
   render(
     h(ClusterMarkerContent, {

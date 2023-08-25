@@ -19,14 +19,30 @@ export default defineComponent({
   setup(props) {
     const content = new Content(props.options)
     const viewer = inject(viewerInjectionKey, null)
+    const handleMounted = () => {
+      if (!props.onMounted) return
+      call(props.onMounted, content)
+    }
+    const handleDestroyed = () => {
+      if (!props.onDestroyed) return
+      call(props.onDestroyed, content)
+    }
 
     // #S with LabelMarker#slot: content
     const setContent = inject(setContentInjectionKey, null)
-    if (setContent) return setContent(content)
+    if (setContent) {
+      setContent(content)
+      handleMounted()
+      return
+    }
     // #E with LabelMarker#slot: content
 
     const overlayGroup = inject(overlayGroupInjectionKey, null)
-    if (overlayGroup) return overlayGroup.addOverlay(content)
+    if (overlayGroup) {
+      overlayGroup.addOverlay(content)
+      handleMounted()
+      return
+    }
 
     watchPostEffect(onClean => {
       onClean(() => {
@@ -38,15 +54,6 @@ export default defineComponent({
       viewer.value.add(content)
       handleMounted()
     })
-
-    const handleMounted = () => {
-      if (!props.onMounted) return
-      call(props.onMounted, content)
-    }
-    const handleDestroyed = () => {
-      if (!props.onDestroyed) return
-      call(props.onDestroyed, content)
-    }
   },
   render() {
     return <i />

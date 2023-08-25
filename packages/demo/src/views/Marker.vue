@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { VViewer, VLabelMarker, VLabelMarkerLayer, VContent } from 'lymp'
-import { ref } from 'vue'
+import { VViewer, VLabelMarker, VContent, VOverlayGroup } from 'lymp'
+import { ref, defineComponent, h, render } from 'vue'
 
 const visible = ref(true)
 
@@ -24,10 +24,37 @@ const createOptions = (position: AMap.Vector2): AMap.LabelMarkerOptions => {
     }
   }
 }
-const createContentOptions = (position: AMap.Vector2): AMap.OverlayOptions => {
+
+const A = defineComponent(
+  props => {
+    return () =>
+      h(
+        'div',
+        {
+          style: {
+            width: 'max-content'
+          }
+        },
+        '飘窗' + props.id
+      )
+  },
+  {
+    props: {
+      id: Number
+    }
+  }
+)
+
+const createContentOptions = (
+  position: AMap.Vector2,
+  id: number
+): AMap.OverlayOptions => {
+  const div = document.createElement('div')
+  render(h(A, { id }), div)
+
   return {
     position,
-    content: 'Content',
+    content: div,
     anchor: 'top-center',
     offset: [0, -60]
   }
@@ -39,16 +66,16 @@ const createContentOptions = (position: AMap.Vector2): AMap.OverlayOptions => {
     style="width: 100%; height: 100vh"
     :options="{ features: ['bg'], center: [116.395577, 39.892257] }"
   >
-    <VLabelMarkerLayer :visible="visible" :options="{ collision: false }">
+    <VOverlayGroup :visible="visible">
       <VLabelMarker
         v-for="(position, i) in positions"
         :key="i"
         :options="createOptions(position)"
       >
         <template #content>
-          <VContent :options="createContentOptions(position)" />
+          <VContent :options="createContentOptions(position, i)" />
         </template>
       </VLabelMarker>
-    </VLabelMarkerLayer>
+    </VOverlayGroup>
   </VViewer>
 </template>
