@@ -81,7 +81,10 @@ const contentOptions: AMap.OverlayOptions = {
       <VLabelMarker :options="labelMarkerOptions" />
       <VLabelMarker :options="labelMarkerContentOptions">
         <template #content>
-          <VContent :options="labelMarkerContentBodyOptions" />
+          <VContent
+            @mounted="v => console.log(v)"
+            :options="labelMarkerContentBodyOptions"
+          />
         </template>
       </VLabelMarker>
       <VContent :options="contentOptions" />
