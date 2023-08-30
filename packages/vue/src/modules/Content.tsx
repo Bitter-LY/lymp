@@ -1,4 +1,10 @@
-import { defineComponent, inject, type PropType, watchPostEffect } from 'vue'
+import {
+  defineComponent,
+  inject,
+  type PropType,
+  watchPostEffect,
+  onUnmounted
+} from 'vue'
 import { Content } from '@lymp/core'
 import {
   overlayGroupInjectionKey,
@@ -33,6 +39,11 @@ export default defineComponent({
     if (setContent) {
       setContent(content)
       handleMounted()
+
+      onUnmounted(() => {
+        viewer?.value?.remove(content)
+        handleDestroyed()
+      })
       return
     }
     // #E with LabelMarker#slot: content
@@ -41,6 +52,11 @@ export default defineComponent({
     if (overlayGroup) {
       overlayGroup.addOverlay(content)
       handleMounted()
+
+      onUnmounted(() => {
+        viewer?.value?.remove(content)
+        handleDestroyed()
+      })
       return
     }
 
