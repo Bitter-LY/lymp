@@ -13,6 +13,13 @@ import { ref } from 'vue'
 const pointVisible = ref(true)
 const visible = ref(true)
 
+const flag = ref(true)
+window.addEventListener('keydown', e => {
+  if (e.key === 'v') {
+    flag.value = false
+  }
+})
+
 window.addEventListener('keydown', e => {
   if (e.key === 'm') {
     pointVisible.value = !pointVisible.value
@@ -69,6 +76,8 @@ const contentOptions: AMap.OverlayOptions = {
   position: [117.57172, 39.910888],
   content: 'Content'
 }
+
+const handleLog = (e: any) => console.log(e, 'mounted')
 </script>
 
 <template>
@@ -76,7 +85,7 @@ const contentOptions: AMap.OverlayOptions = {
     style="width: 100%; height: 100vh"
     :options="{ features: ['bg'], center: [116.395577, 39.892257] }"
   >
-    <VOverlayGroup :visible="pointVisible">
+    <VOverlayGroup v-if="flag" :visible="pointVisible">
       <VMarker :options="markerOptions" />
       <VLabelMarker :options="labelMarkerOptions" />
       <VLabelMarker :options="labelMarkerContentOptions">
@@ -95,6 +104,7 @@ const contentOptions: AMap.OverlayOptions = {
         :options="{ path: polylinePath, strokeWeight: 5, strokeColor: 'red' }"
       />
       <VPolygon
+        @mounted="handleLog"
         :options="{
           path: polygonPath,
           strokeWeight: 5,

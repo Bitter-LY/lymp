@@ -1,4 +1,10 @@
-import { defineComponent, inject, type PropType, watchPostEffect } from 'vue'
+import {
+  defineComponent,
+  inject,
+  type PropType,
+  watchPostEffect,
+  onUnmounted
+} from 'vue'
 import { Polygon } from '@lymp/core'
 import { overlayGroupInjectionKey, viewerInjectionKey } from '../injectionKeys'
 import { call } from '../utils/vue/call'
@@ -13,11 +19,28 @@ export default defineComponent({
   name: 'Polygon',
   props,
   setup(props) {
+    const handleMounted = () => {
+      if (!props.onMounted) return
+      call(props.onMounted, polygon)
+    }
+    const handleDestroyed = () => {
+      if (!props.onDestroyed) return
+      call(props.onDestroyed, polygon)
+    }
     const polygon = new Polygon(props.options)
     const viewer = inject(viewerInjectionKey, null)
 
     const overlayGroup = inject(overlayGroupInjectionKey, null)
-    if (overlayGroup) return overlayGroup.addOverlay(polygon)
+    if (overlayGroup) {
+      overlayGroup.addOverlay(polygon)
+      handleMounted()
+
+      onUnmounted(() => {
+        viewer?.value?.remove(polygon)
+        handleDestroyed()
+      })
+      return
+    }
 
     watchPostEffect(onClean => {
       if (!viewer?.value) return
@@ -29,15 +52,6 @@ export default defineComponent({
       viewer.value.add(polygon)
       handleMounted()
     })
-
-    const handleMounted = () => {
-      if (!props.onMounted) return
-      call(props.onMounted, polygon)
-    }
-    const handleDestroyed = () => {
-      if (!props.onDestroyed) return
-      call(props.onDestroyed, polygon)
-    }
   },
   render() {
     return <i />
