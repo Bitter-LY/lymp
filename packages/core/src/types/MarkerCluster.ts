@@ -1,5 +1,10 @@
 declare global {
   namespace AMap {
+    export class GeoJSON {
+      new(options: any): GeoJSON
+      constructor(options: any)
+    }
+
     export class MarkerCluster extends AMap.Event<'click'> {
       new(
         viewer?: AMap.Map,
