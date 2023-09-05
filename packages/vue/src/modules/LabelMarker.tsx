@@ -35,6 +35,15 @@ export default defineComponent({
     const overlayGroup = inject(overlayGroupInjectionKey, null)
     const labelMarkerLayer = inject(labelMarkerLayerInjectionKey, null)
 
+    const handleMounted = () => {
+      if (!props.onMounted) return
+      call(props.onMounted, labelMaker)
+    }
+    const handleDestroyed = () => {
+      if (!props.onDestroyed) return
+      call(props.onDestroyed, labelMaker)
+    }
+
     // #S slot: content
     const content = shallowRef<Content | null>(null)
     provide(setContentInjectionKey, c => {
@@ -53,7 +62,10 @@ export default defineComponent({
         content.value[content.value.getVisible() ? 'hide' : 'show']()
       }
 
-      onClean(() => labelMaker.off('click', handleToggle))
+      onClean(() => {
+        labelMaker.off('click', handleToggle)
+        handleDestroyed()
+      })
       labelMaker.on('click', handleToggle)
 
       if (!overlayGroup) return
@@ -64,6 +76,7 @@ export default defineComponent({
     // #S slot: labelMarkerLayer
     if (labelMarkerLayer) {
       labelMarkerLayer.add(labelMaker)
+      handleMounted()
       return {
         labelMarkerLayer
       }
@@ -72,6 +85,7 @@ export default defineComponent({
 
     if (overlayGroup) {
       overlayGroup.addOverlay(labelMaker)
+      handleMounted()
       return {
         labelMarkerLayer
       }
@@ -87,15 +101,6 @@ export default defineComponent({
       viewer.value.add(labelMaker)
       handleMounted()
     })
-
-    const handleMounted = () => {
-      if (!props.onMounted) return
-      call(props.onMounted, labelMaker)
-    }
-    const handleDestroyed = () => {
-      if (!props.onDestroyed) return
-      call(props.onDestroyed, labelMaker)
-    }
 
     return {
       labelMarkerLayer
